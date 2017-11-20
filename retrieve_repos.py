@@ -26,7 +26,7 @@ class UserRepoCommits(object):
     def get_repos(self, save_data=True):
         cmd = "curl -l -H 'Authorization: token %s' \
                 https://api.github.com/users/%s/repos" %(self.auth_token,self.user_name)
-        self.repos = self._retrieve_json(cmd)
+        self.repos = retrieve_json(cmd)
         self.logger.info("loading repository data")
         if save_data:
             repo_path = os.path.join(self.user_path, "repos.json")
@@ -70,7 +70,7 @@ class UserRepoCommits(object):
     def _get_branches(self, repo):
         cmd = "curl -l -H 'Authorization: token %s' \
                 https://api.github.com/repos/%s/%s/branches" %(self.auth_token, self.user_name, repo)
-        branches = [branch['name'] for branch in self._retrieve_json(cmd)]
+        branches = [branch['name'] for branch in retrieve_json(cmd)]
         self._get_commits(branches, repo)
 
     def _get_commits(self, branches, repo):
@@ -80,17 +80,17 @@ class UserRepoCommits(object):
         for branch in branches:
             cmd = "curl -l -H 'Authorization: token %s' \
                     https://api.github.com/repos/%s/%s/commits?sha=%s" %(self.auth_token, self.user_name, repo, branch)
-            commit_tmp = self._retrieve_json(cmd)
+            commit_tmp = retrieve_json(cmd)
             commit_file = os.path.join(repo_path, "%s_commits.json" %branch)
             with open(commit_file, "w") as outf:
                 json.dump(commit_tmp, outf, indent=4)
             self.logger.info("loading commits of branch %s into %s"%(branch, repo_path))
 
 
-    def _retrieve_json(self,cmd):
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = p.communicate()
-        return json.loads(out.decode("utf-8"))
+def retrieve_json(cmd):
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return json.loads(out.decode("utf-8"))
 
 
 
@@ -98,12 +98,12 @@ if __name__=="__main__":
     user_name = "defunkt"
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-    fh = logging.FileHandler("user_%s_retrieval.log" %user_name, mode='a', encoding='utf-8')
+    fh = logging.FileHandler("log_files/user_%s_retrieval.log" %user_name, mode='a', encoding='utf-8')
     fh.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s: %(message)s')
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-    ud = UserData(user_name, auth_token="10753b8277ae8c9d284bf42470d0d0c5bf62b58c")
-    ud.get_repos(save_data=True)
-    ud.filter_repos()
+    urc = UserRepoCommits(user_name, auth_token="")
+    urc.get_repos(save_data=True)
+    urc.filter_repos()

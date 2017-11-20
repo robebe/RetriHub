@@ -3,3 +3,6 @@
 
 # ignore log files 
 *.log
+
+# ignore file containing token
+sec_token.txt
