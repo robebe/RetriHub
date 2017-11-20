@@ -1,8 +1,11 @@
 # ignore folder containing retrieved data
 /data/*
 
-# ignore log files 
+# ignore log files
 *.log
 
 # ignore file containing token
 sec_token.txt
+
+# ignore pycache
+__pycache__
