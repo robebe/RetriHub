@@ -1,5 +1,4 @@
 # ignore folder containing retrieved data
-/data/*
 /retrieved_data/*
 
 # ignore log files
