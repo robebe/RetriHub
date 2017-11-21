@@ -14,7 +14,7 @@ class UserRepoCommits(object):
 
         self.logger = logging.getLogger(__name__)
         fh = logging.FileHandler("log_files/user_%s_retrieval.log" %self.user_name)
-        fh.setLevel(logging.INFO)
+        fh.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s: %(message)s')
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
@@ -41,9 +41,12 @@ class UserRepoCommits(object):
             #print(branch)
             for commit in retrieve_json("repos/%s/%s/commits?sha=%s"%(self.user_name, repo, branch), self.auth_token):
                 #print(commit["url"])
-                sha2data_dict = self._get_commit_data(commit["url"])
-                for sha, data in sha2data_dict.items():
-                    repo_dict[sha] = data
+                try:
+                    sha2data_dict = self._get_commit_data(commit["url"])
+                    for sha, data in sha2data_dict.items():
+                        repo_dict[sha] = data
+                except:#no commits found
+                    continue
         with open(os.path.join(self.commits_path, "%s_commit_data.json"%repo), "w") as outf:
             json.dump(repo_dict, outf, indent=4)
         self.logger.info("Retrieved commit data from git folder: %s"%repo)
@@ -63,12 +66,12 @@ class UserRepoCommits(object):
         try:
             tmp_dict["author_login"] = data_dict["author"]["login"]
         except:
-            self.logger.error("author_login linking to null at: %s"%commit_url)
+            #self.logger.error("author_login linking to null at: %s"%commit_url)
             tmp_dict["author_login"] = "null"
         try:
             tmp_dict["committer_login"] = data_dict["committer"]["login"]
         except:
-            self.logger.error("committer_login linking to null at: %s"%commit_url)
+            #self.logger.error("committer_login linking to null at: %s"%commit_url)
             tmp_dict["committer_login"] = "null"
         #tmp_dict["committer_is_admin"] = str(data_dict["committer"]["site_admin"])
         tmp_dict["stats"] = data_dict["stats"]
