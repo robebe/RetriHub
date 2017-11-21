@@ -18,12 +18,13 @@ class UserRepoCommits(object):
 
     def logger_setup(self):
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
         log_path = "log_files"#/user_%s_retrieval.log" %self.user_name
         if not os.path.exists(log_path):
             os.makedirs(log_path)
         log_to = os.path.join(log_path, "user_%s_retrieval.log"%self.user_name)
-        fh = logging.FileHandler(log_path)
-        fh.setLevel(logging.DEBUG)
+        fh = logging.FileHandler(log_to)
+        fh.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s: %(message)s')
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
