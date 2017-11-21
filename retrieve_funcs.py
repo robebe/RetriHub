@@ -42,7 +42,7 @@ def retrieve_json(address, auth_token, addrr_is_url=False):
     out, err = p.communicate()
     return json.loads(out.decode("utf-8"))
 
-def acqu_users(user_set, auth_token):
+def acqu_users(user_set, auth_token, max_user_num=10):
     tmp = copy.deepcopy(user_set)
     iter_set = copy.deepcopy(user_set)
     for old_user in iter_set:
@@ -54,7 +54,7 @@ def acqu_users(user_set, auth_token):
                     print("added %s to user_set"%new_user["login"])
                     print("Press ENTER if you wish to start with data retrieval of the present %d users."%len(tmp))
                     inp, outp, err = select.select([sys.stdin], [], [], 5)
-                    if inp:
+                    if inp or (len(tmp) == max_user_num):
                         return tmp
                     else:
                         continue

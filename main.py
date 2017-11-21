@@ -17,7 +17,7 @@ def main():
 
     initial_set = set()
     initial_set.add(user_name)
-    retrieved_user_set = acqu_users(initial_set, auth_token) | initial_set
+    retrieved_user_set = acqu_users(initial_set, auth_token, 5) | initial_set
     print("Now starting data retrieval for acquired users: %s. This may take several years."%retrieved_user_set)
     for user_name in retrieved_user_set:
         urc = UserRepoCommits(user_name, auth_token)
