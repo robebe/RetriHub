@@ -1,10 +1,9 @@
 #/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import logging
 import sys
 from repo_commits import UserRepoCommits
-from retrieve_funcs import get_token
+from retrieve_funcs import get_token, acqu_users
 
 def main():
     user_name = sys.argv[1]
@@ -13,16 +12,29 @@ def main():
     except IndexError:
         auth_token = get_token()
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    fh = logging.FileHandler("log_files/user_%s_retrieval.log" %user_name, mode='a', encoding='utf-8')
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s: %(message)s')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    #urc = UserRepoCommits(user_name, auth_token)
+    #urc.get_repos()
 
-    urc = UserRepoCommits(user_name, auth_token)
-    urc.get_repos()
+    initial_set = set()
+    initial_set.add(user_name)
+    retrieved_user_set = acqu_users(initial_set, auth_token) | initial_set
+    print("Now starting data retrieval for acquired users: %s. This may take several years."%retrieved_user_set)
+    for user_name in retrieved_user_set:
+        urc = UserRepoCommits(user_name, auth_token)
+        urc.get_repos()
+
+    """
+    def _data_retrieval(user_name):
+        urc = UserRepoCommits(user_name, auth_token)
+        urc.get_repos()
+
+    #p = pool(len(retrieved_user_set))
+    #p.map(_data_retrieval, retrieved_user_set)
+    p = process(_data_retrieval, retrieved_user_set)
+    p.start()
+    p.join()
+    """
+
 
 if __name__=="__main__":
     main()

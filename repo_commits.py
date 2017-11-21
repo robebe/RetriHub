@@ -11,21 +11,25 @@ class UserRepoCommits(object):
     def __init__(self, user_name, auth_token):
         self.user_name = user_name
         self.auth_token = auth_token
-        self.logger = logging.getLogger("__main__")
+
+        self.logger = logging.getLogger(__name__)
+        fh = logging.FileHandler("log_files/user_%s_retrieval.log" %self.user_name)
+        fh.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s: %(message)s')
+        fh.setFormatter(formatter)
+        self.logger.addHandler(fh)
         self.logger.info("Init class UserData with user_name: %s"%self.user_name)
+
         self.commits_path = "retrieved_data/%s/"%self.user_name
         if not os.path.exists(self.commits_path):
             os.makedirs(self.commits_path)
 
     def get_repos(self):
         repo_names = []
-        contrib_url = []
         for repo in retrieve_json("users/%s/repos"%self.user_name, self.auth_token):
             repo_names.append(repo["name"])
-            contrib_url.append(repo["contributors_url"])
         self.repo_count = len(repo_names)
-        self.logger.info("repos of %s: %s"%(self.user_name, repo_names))
-        self.logger.info("urls of contributors: %s"%contrib_url)
+        self.logger.info("%s total repo_count: %s"%(self.user_name, self.repo_count))
         for repo in repo_names:
             self.get_branch_commits(repo)
 
@@ -42,10 +46,11 @@ class UserRepoCommits(object):
                     repo_dict[sha] = data
         with open(os.path.join(self.commits_path, "%s_commit_data.json"%repo), "w") as outf:
             json.dump(repo_dict, outf, indent=4)
-        print("done with repository: %s"%repo)
-        self.repo_count -= 1
-        print("%d repos to go."%self.repo_count)
         self.logger.info("Retrieved commit data from git folder: %s"%repo)
+        #print("done with repository: %s"%repo)
+        self.repo_count -= 1
+        #print("%d repos to go."%self.repo_count)
+        self.logger.info("%d repos to go."%self.repo_count)
 
     def _get_commit_data(self, commit_url):
         ret = dict()
@@ -65,7 +70,7 @@ class UserRepoCommits(object):
         except:
             self.logger.error("committer_login linking to null at: %s"%commit_url)
             tmp_dict["committer_login"] = "null"
-        tmp_dict["committer_is_admin"] = str(data_dict["committer"]["site_admin"])
+        #tmp_dict["committer_is_admin"] = str(data_dict["committer"]["site_admin"])
         tmp_dict["stats"] = data_dict["stats"]
         tmp_dict["file_count"] = len(data_dict["files"])
         ret[data_dict["sha"]] = tmp_dict
