@@ -11,18 +11,23 @@ class UserRepoCommits(object):
     def __init__(self, user_name, auth_token):
         self.user_name = user_name
         self.auth_token = auth_token
+        self.logger_setup()
+        self.commits_path = "retrieved_data/%s/"%self.user_name
+        if not os.path.exists(self.commits_path):
+            os.makedirs(self.commits_path)
 
+    def logger_setup(self):
         self.logger = logging.getLogger(__name__)
-        fh = logging.FileHandler("log_files/user_%s_retrieval.log" %self.user_name)
+        log_path = "log_files"#/user_%s_retrieval.log" %self.user_name
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
+        log_to = os.path.join(log_path, "user_%s_retrieval.log"%self.user_name)
+        fh = logging.FileHandler(log_path)
         fh.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)-8s: %(message)s')
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
         self.logger.info("Init class UserData with user_name: %s"%self.user_name)
-
-        self.commits_path = "retrieved_data/%s/"%self.user_name
-        if not os.path.exists(self.commits_path):
-            os.makedirs(self.commits_path)
 
     def get_repos(self):
         repo_names = []
