@@ -17,7 +17,7 @@ class UserRepoCommits(object):
             os.makedirs(self.commits_path)
 
     def logger_setup(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(__name__+"_"+self.user_name)
         self.logger.setLevel(logging.INFO)
         log_path = "log_files"#/user_%s_retrieval.log" %self.user_name
         if not os.path.exists(log_path):
