@@ -9,7 +9,7 @@ from retrieve_funcs import retrieve_json
 
 class UserRepoCommits(object):
 
-    def __init__(self, user_name, auth_token, max_repos=15):
+    def __init__(self, user_name, auth_token, max_repos=20):
         self.user_name = user_name
         self.auth_token = auth_token
         self.max_repos = max_repos
@@ -37,7 +37,7 @@ class UserRepoCommits(object):
         for repo in retrieve_json("users/%s/repos"%self.user_name, self.auth_token):
             repo_names.append(repo["name"])
         shuffle(repo_names)
-        repos = repo_names[:15]
+        repos = repo_names[:self.max_repos]
         self.repo_count = len(repos)
         self.logger.info("%s total repo_count: %s"%(self.user_name, self.repo_count))
         for repo in repos:
@@ -47,16 +47,19 @@ class UserRepoCommits(object):
         #print(repo)
         repo_dict = dict()
         for branch in retrieve_json("repos/%s/%s/branches"%(self.user_name, repo), self.auth_token):
-            branch = branch["name"]
-            #print(branch)
-            for commit in retrieve_json("repos/%s/%s/commits?sha=%s"%(self.user_name, repo, branch), self.auth_token):
-                #print(commit["url"])
-                try:
-                    sha2data_dict = self._get_commit_data(commit["url"])
-                    for sha, data in sha2data_dict.items():
-                        repo_dict[sha] = data
-                except:#no commits found
-                    continue
+            try:
+                branch = branch["name"]
+                #print(branch)
+                for commit in retrieve_json("repos/%s/%s/commits?sha=%s"%(self.user_name, repo, branch), self.auth_token):
+                    #print(commit["url"])
+                    try:
+                        sha2data_dict = self._get_commit_data(commit["url"])
+                        for sha, data in sha2data_dict.items():
+                            repo_dict[sha] = data
+                    except:#no commits found
+                        continue
+            except:#branch not found
+                continue
         with open(os.path.join(self.commits_path, "%s_commit_data.json"%repo), "w") as outf:
             json.dump(repo_dict, outf, indent=4)
         self.logger.info("Retrieved commit data from git folder: %s"%repo)
