@@ -2,39 +2,28 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 from repo_commits import UserRepoCommits
 from retrieve_funcs import get_token, acqu_users
+from multiprocessing import Pool
 
-def main():
-    user_name = sys.argv[1]
-    try:
-        auth_token = sys.argv[2]
-    except IndexError:
-        auth_token = get_token()
+user_name = sys.argv[1]
+try:
+    auth_token = sys.argv[2]
+except IndexError:
+    auth_token = get_token()
 
-    #urc = UserRepoCommits(user_name, auth_token)
-    #urc.get_repos()
+if not os.path.exists("log_files"):
+    os.makedirs("log_files")
 
-    initial_set = set()
-    initial_set.add(user_name)
-    retrieved_user_set = acqu_users(initial_set, auth_token, 5) | initial_set
-    print("Now starting data retrieval for acquired users: %s. This may take several years."%retrieved_user_set)
-    for user_name in retrieved_user_set:
-        urc = UserRepoCommits(user_name, auth_token)
-        urc.get_repos()
+def data_retrieval(user_name):
+    urc = UserRepoCommits(user_name, auth_token)
+    urc.get_repos()
 
-    """
-    def _data_retrieval(user_name):
-        urc = UserRepoCommits(user_name, auth_token)
-        urc.get_repos()
+initial_set = set()
+initial_set.add(user_name)
+retrieved_user_set = acqu_users(initial_set, auth_token, 5) | initial_set
 
-    #p = pool(len(retrieved_user_set))
-    #p.map(_data_retrieval, retrieved_user_set)
-    p = process(_data_retrieval, retrieved_user_set)
-    p.start()
-    p.join()
-    """
-
-
-if __name__=="__main__":
-    main()
+print("Now starting data retrieval for acquired users: %s. This may take several years."%retrieved_user_set)
+p = Pool(len(retrieved_user_set))
+p.map(data_retrieval, retrieved_user_set)
