@@ -4,7 +4,6 @@
 import logging
 import os
 import json
-import csv
 from random import shuffle
 from retrieve_funcs import retrieve_json
 
@@ -22,6 +21,9 @@ class UserRepoCommits(object):
     def logger_setup(self):
         self.logger = logging.getLogger(__name__+"_"+self.user_name)
         self.logger.setLevel(logging.INFO)
+        #log_path = "log_files"#/user_%s_retrieval.log" %self.user_name
+        #if not os.path.exists(log_path):
+            #os.makedirs(log_path)
         log_to = os.path.join("log_files", "user_%s_retrieval.log"%self.user_name)
         fh = logging.FileHandler(log_to)
         fh.setLevel(logging.INFO)
@@ -42,37 +44,50 @@ class UserRepoCommits(object):
             self.get_branch_commits(repo)
 
     def get_branch_commits(self, repo):
-        commit_list = []
+        #print(repo)
+        repo_dict = dict()
         for branch in retrieve_json("repos/%s/%s/branches"%(self.user_name, repo), self.auth_token):
-            branch = branch["name"]
-            for commit in retrieve_json("repos/%s/%s/commits?sha=%s"%(self.user_name, repo, branch), self.auth_token):
-                data_dict = self._get_commit_data(commit["url"])
-                #commit_list.append(data_dict)
-                commit_list = [data_dict] + commit_list
-        with open(os.path.join(self.commits_path, "%s_commit_data.csv"%repo), "w", newline="") as outf:
-            out = csv.DictWriter(outf, commit_list[0].keys())
-            out.writeheader()
-            for dic in commit_list:
-                out.writerow(dic)
+            try:
+                branch = branch["name"]
+                #print(branch)
+                for commit in retrieve_json("repos/%s/%s/commits?sha=%s"%(self.user_name, repo, branch), self.auth_token):
+                    #print(commit["url"])
+                    try:
+                        sha2data_dict = self._get_commit_data(commit["url"])
+                        for sha, data in sha2data_dict.items():
+                            repo_dict[sha] = data
+                    except:#no commits found
+                        continue
+            except:#branch not found
+                continue
+        with open(os.path.join(self.commits_path, "%s_commit_data.json"%repo), "w") as outf:
+            json.dump(repo_dict, outf, indent=4)
         self.logger.info("Retrieved commit data from git folder: %s"%repo)
+        #print("done with repository: %s"%repo)
         self.repo_count -= 1
+        #print("%d repos to go."%self.repo_count)
         self.logger.info("%d repos to go."%self.repo_count)
 
     def _get_commit_data(self, commit_url):
+        ret = dict()
         data_dict = retrieve_json(commit_url, self.auth_token, addrr_is_url=True)
         tmp_dict = dict()
-        tmp_dict["user_date"] = "%s (%s)"%(data_dict["commit"]["committer"]["name"], data_dict["commit"]["committer"]["date"])
-        tmp_dict["additions"] = data_dict["stats"]["additions"]
-        tmp_dict["deletions"] = data_dict["stats"]["deletions"]
-        """
+        tmp_dict["author_name"] = data_dict["commit"]["author"]["name"]
+        tmp_dict["commit_author_date"] = data_dict["commit"]["author"]["date"]
         tmp_dict["committer_name"] = data_dict["commit"]["committer"]["name"]
         tmp_dict["commit_committer_date"] = data_dict["commit"]["committer"]["date"]
         try:
+            tmp_dict["author_login"] = data_dict["author"]["login"]
+        except:
+            #self.logger.error("author_login linking to null at: %s"%commit_url)
+            tmp_dict["author_login"] = "null"
+        try:
             tmp_dict["committer_login"] = data_dict["committer"]["login"]
         except:
+            #self.logger.error("committer_login linking to null at: %s"%commit_url)
             tmp_dict["committer_login"] = "null"
-        tmp_dict["additions"] = data_dict["stats"]["additions"]
-        tmp_dict["deletions"] = data_dict["stats"]["deletions"]
+        #tmp_dict["committer_is_admin"] = str(data_dict["committer"]["site_admin"])
+        tmp_dict["stats"] = data_dict["stats"]
         tmp_dict["file_count"] = len(data_dict["files"])
-        """
-        return tmp_dict
+        ret[data_dict["sha"]] = tmp_dict
+        return ret
