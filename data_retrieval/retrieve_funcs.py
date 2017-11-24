@@ -31,6 +31,8 @@ def get_token():
         print("Token request failed: %d"%res.status_code)
         print(j_obj)
         sys.exit(1)
+    with open("0AuthToken.txt") as outf:
+        outf.write(j_obj['token'])
     return j_obj['token']
 
 def retrieve_json(address, auth_token, addrr_is_url=False):

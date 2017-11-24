@@ -12,3 +12,6 @@ sec_token.txt
 
 # ignore pycache
 __pycache__
+
+#ignore file containing auth_token
+0AuthToken.txt
