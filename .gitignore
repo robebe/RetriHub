@@ -4,6 +4,9 @@
 # ignore log files
 *.log
 
+#ignore obsolete files
+obsolete_*
+
 # ignore file containing token
 sec_token.txt
 
