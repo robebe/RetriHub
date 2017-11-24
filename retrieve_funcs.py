@@ -28,7 +28,8 @@ def get_token():
         )
     j_obj = json.loads(res.text)
     if res.status_code >= 400:
-        print("An error occurred: %d"%res.status_code)
+        print("Token request failed: %d"%res.status_code)
+        print(j_obj)
         sys.exit(1)
     return j_obj['token']
 
