@@ -14,6 +14,9 @@ GITHUB_API = "https://api.github.com"
 
 
 def get_token():
+    """
+    generate auth token for data retrieval via Github's API
+    """
     user = input("Your Github username: ")
     password = getpass.getpass("Your password: ")
     note = "Requesting 0AuthToken."
@@ -46,6 +49,12 @@ def retrieve_json(address, auth_token, addrr_is_url=False):
     return json.loads(out.decode("utf-8"))
 
 def acqu_users(user_set, auth_token, max_user_num=10):
+    """
+    recursively retrieve user names. start data retrieval for present user names
+    by hitting ENTER
+    data retrieval automatically starts after two runs without changes to present
+    user set
+    """
     tmp = copy.deepcopy(user_set)
     iter_set = copy.deepcopy(user_set)
     for old_user in iter_set:

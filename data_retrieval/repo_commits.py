@@ -11,6 +11,11 @@ from retrieve_funcs import retrieve_json
 class UserRepoCommits(object):
 
     def __init__(self, user_name, auth_token, max_repos=20):
+        """
+        select n = max_repos repositories from user_name storing commit data
+        (committer, date, additions, deletions) as reponame_commit_data.csv
+        in respective folder
+        """
         self.user_name = user_name
         self.auth_token = auth_token
         self.max_repos = max_repos
@@ -64,15 +69,4 @@ class UserRepoCommits(object):
         tmp_dict["user_date"] = "%s (%s)"%(data_dict["commit"]["committer"]["name"], data_dict["commit"]["committer"]["date"])
         tmp_dict["additions"] = data_dict["stats"]["additions"]
         tmp_dict["deletions"] = data_dict["stats"]["deletions"]
-        """
-        tmp_dict["committer_name"] = data_dict["commit"]["committer"]["name"]
-        tmp_dict["commit_committer_date"] = data_dict["commit"]["committer"]["date"]
-        try:
-            tmp_dict["committer_login"] = data_dict["committer"]["login"]
-        except:
-            tmp_dict["committer_login"] = "null"
-        tmp_dict["additions"] = data_dict["stats"]["additions"]
-        tmp_dict["deletions"] = data_dict["stats"]["deletions"]
-        tmp_dict["file_count"] = len(data_dict["files"])
-        """
         return tmp_dict

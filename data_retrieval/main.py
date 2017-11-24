@@ -7,6 +7,13 @@ from repo_commits import UserRepoCommits
 from retrieve_funcs import get_token, acqu_users
 from multiprocessing import Pool
 
+"""
+first argument: user name to retrieve data from and start recursive search for other users
+second argument: auth token (optional)
+after user name retrieval is stopped the actual data retrieval for the gathered user user names
+is initialized via multiprocessing to speed up the process
+"""
+
 user_name = sys.argv[1]
 try:
     auth_token = sys.argv[2]
