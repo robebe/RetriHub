@@ -3,8 +3,8 @@ var n = 2; // number of layers
     m = 1000; // number of samples per layer
 
 var margin = {top: 20, right: 50, bottom: 250, left: 200},
-    width = 5000 - margin.left - margin.right,
-    height = 1000 - margin.top - margin.bottom;
+    width = 3000 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
 
 var svg = d3.select("#chart-svg").append("svg")
     .attr("width", width + margin.left + margin.right)
