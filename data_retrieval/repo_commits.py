@@ -15,7 +15,7 @@ class UserRepoCommits(object):
         self.auth_token = auth_token
         self.max_repos = max_repos
         self.logger_setup()
-        self.commits_path = "retrieved_data/%s/"%self.user_name
+        self.commits_path = "data/%s/"%self.user_name
         if not os.path.exists(self.commits_path):
             os.makedirs(self.commits_path)
 

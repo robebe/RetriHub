@@ -15,6 +15,8 @@ except IndexError:
 
 if not os.path.exists("log_files"):
     os.makedirs("log_files")
+if not os.path.exists("data"):
+    os.makedirs("data")
 
 def data_retrieval(user_name):
     urc = UserRepoCommits(user_name, auth_token)
