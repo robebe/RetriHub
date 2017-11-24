@@ -1,6 +1,6 @@
-
+// source: https://github.com/DeBraid/www.cacheflow.ca/blob/master/styles/js/d3kickchart.js
 var n = 2; // number of layers
-    m = 1000; // number of samples per layer
+    m = 100; // number of samples per layer
 
 var margin = {top: 20, right: 50, bottom: 250, left: 200},
     width = 2000 - margin.left - margin.right,
