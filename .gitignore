@@ -1,5 +1,5 @@
 # ignore folder containing retrieved data
-retrieved_data/*
+retrieved_data
 
 # ignore log files
 *.log
